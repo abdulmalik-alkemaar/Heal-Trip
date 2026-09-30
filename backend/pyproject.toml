@@ -49,6 +49,8 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --tb=short"
+# WhiteNoise warns when collectstatic has not run (expected in dev/test).
+filterwarnings = ["ignore:No directory at:UserWarning"]
 
 [dependency-groups]
 dev = [

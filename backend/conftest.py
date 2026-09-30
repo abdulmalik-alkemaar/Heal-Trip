@@ -7,6 +7,23 @@ from django.test import Client
 from core.tests.factories import UserFactory
 
 
+@pytest.fixture(autouse=True)
+def _offline_llm(settings):
+    """Tests never call the real LLM, even if a developer's .env has a key."""
+    settings.LLM_PROVIDER = "mock"
+    settings.ANTHROPIC_API_KEY = ""
+
+
+@pytest.fixture(autouse=True)
+def _clear_cache():
+    """Throttle counters live in the cache; isolate them per test."""
+    from django.core.cache import cache
+
+    cache.clear()
+    yield
+    cache.clear()
+
+
 @pytest.fixture
 def user():
     return UserFactory()

@@ -94,3 +94,26 @@ Short ADR-style entries. Each records **context → decision → consequences**.
 - SDK retries are disabled (`max_retries=0`) and `tenacity` owns the retry policy: exponential backoff on timeouts, connection errors, 429 and 5xx only. A 4xx fails fast.
 
 **History.** Each turn rebuilds the conversation from stored text (the last 12 messages plus the structured state). Within a turn the message list is append-only and assistant content is echoed back unchanged. After a server-side fallback, blocks from the declined attempt are dropped, as the API requires.
+
+## ADR-012 — Anonymous chat sessions with cookie-bound ownership; CSRF for everyone
+
+**Context.** Reviewers must be able to try the demo without a Google login, but chat sessions must not be readable by anyone who guesses a UUID.
+
+**Decision.**
+- `POST /api/chat/sessions/` works anonymously. The new session's UUID is added to the browser's Django session (`request.session["chat_session_ids"]`, server-side storage, signed session cookie).
+- Every read or write checks that list, or `chat.user == request.user` for logged-in users, so Google login gives cross-device history.
+- A session you don't own returns **404**, never 403, so existence doesn't leak.
+- `CsrfEnforcedSessionAuthentication` is the DRF default. It enforces CSRF on unsafe methods **even for anonymous users**, because otherwise a cross-site POST could write into a victim's chat. The SPA gets the token from `/api/csrf-token/` (template convention) and sends `X-CSRFToken`.
+
+**Trade-off.** Clearing cookies loses access to an anonymous conversation. That's acceptable for a demo, and arguably desirable for privacy.
+
+## ADR-013 — Rate limits in three layers
+
+**Decision.**
+1. Per-IP burst and daily limits (`CHAT_RATE_PER_MINUTE`, `CHAT_RATE_PER_DAY`).
+2. A per-chat-session limit (`CHAT_SESSION_RATE`) plus a hard cap of `CHAT_MAX_MESSAGES_PER_SESSION` (50) user messages.
+3. A **global** `DEMO_DAILY_MESSAGE_CAP`, counted from `AgentRunLog` in Postgres, so it holds across workers and restarts without Redis.
+
+The first two layers use DRF throttles on the Django cache (Redis in production per the template, LocMem in development).
+
+**Consequences.** The worst-case daily LLM spend of a public demo link is bounded by `DEMO_DAILY_MESSAGE_CAP × AGENT_MAX_ITERATIONS` model calls.

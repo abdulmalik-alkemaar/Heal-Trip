@@ -1,0 +1,733 @@
+openapi: 3.0.3
+info:
+  title: HealTrip AI Patient Decision Assistant API
+  version: 1.0.0
+  description: Chat API for the patient navigation agent plus the read-only provider
+    directory. All provider data is fictional. Not medical advice.
+paths:
+  /api/chat/sessions/:
+    post:
+      operationId: chat_sessions_create
+      tags:
+      - chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionCreated'
+          description: ''
+  /api/chat/sessions/{session_id}/:
+    get:
+      operationId: chat_sessions_retrieve
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - chat
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDetail'
+          description: ''
+  /api/chat/sessions/{session_id}/messages/:
+    post:
+      operationId: chat_sessions_messages_create
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+            examples:
+              TaskExample:
+                value:
+                  content: I have chest pain and I'm not sure whether I should see
+                    a cardiologist, go to the ER, or seek a second opinion.
+                summary: Task example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnResponse'
+          description: ''
+  /api/csrf-token/:
+    get:
+      operationId: csrf_token_retrieve
+      description: Set CSRF cookie for the React SPA.
+      tags:
+      - ops
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      description: Liveness + dependency status. Reports configuration *presence*,
+        never secret values.
+      tags:
+      - ops
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/profile/:
+    get:
+      operationId: profile_retrieve
+      description: Get or update current user profile.
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: profile_partial_update
+      description: Get or update current user profile.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/providers/:
+    get:
+      operationId: providers_list
+      description: Active doctors, filterable by specialty, city and spoken language.
+      parameters:
+      - in: query
+        name: city
+        schema:
+          type: string
+          enum:
+          - ABHA
+          - DAMMAM
+          - JEDDAH
+          - RIYADH
+      - in: query
+        name: language
+        schema:
+          type: string
+          enum:
+          - ar
+          - en
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: specialty
+        schema:
+          type: string
+          enum:
+          - CARDIOLOGY
+          - EMERGENCY_MEDICINE
+          - GASTROENTEROLOGY
+          - INTERNAL_MEDICINE
+          - NEUROLOGY
+          - ORTHOPEDICS
+          - PULMONOLOGY
+      tags:
+      - directory
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDoctorCardList'
+          description: ''
+  /api/specialties/:
+    get:
+      operationId: specialties_list
+      tags:
+      - directory
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Specialty'
+          description: ''
+components:
+  schemas:
+    CityEnum:
+      enum:
+      - RIYADH
+      - JEDDAH
+      - DAMMAM
+      - ABHA
+      type: string
+      description: |-
+        * `RIYADH` - Riyadh
+        * `JEDDAH` - Jeddah
+        * `DAMMAM` - Dammam
+        * `ABHA` - Abha
+    ClarifyingQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+        quick_replies:
+          type: array
+          items:
+            type: string
+      required:
+      - question
+      - quick_replies
+    CodeEnum:
+      enum:
+      - CARDIOLOGY
+      - EMERGENCY_MEDICINE
+      - INTERNAL_MEDICINE
+      - NEUROLOGY
+      - ORTHOPEDICS
+      - GASTROENTEROLOGY
+      - PULMONOLOGY
+      type: string
+      description: |-
+        * `CARDIOLOGY` - Cardiology
+        * `EMERGENCY_MEDICINE` - Emergency Medicine
+        * `INTERNAL_MEDICINE` - Internal Medicine
+        * `NEUROLOGY` - Neurology
+        * `ORTHOPEDICS` - Orthopedics
+        * `GASTROENTEROLOGY` - Gastroenterology
+        * `PULMONOLOGY` - Pulmonology
+    CreateSessionRequest:
+      type: object
+      properties:
+        language:
+          allOf:
+          - $ref: '#/components/schemas/LanguageCodeEnum'
+          default: en
+    DoctorCard:
+      type: object
+      properties:
+        provider_id:
+          type: integer
+        name_en:
+          type: string
+          maxLength: 200
+        name_ar:
+          type: string
+          maxLength: 200
+        specialties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Specialty'
+          readOnly: true
+        hospital:
+          allOf:
+          - $ref: '#/components/schemas/HospitalCard'
+          readOnly: true
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageCodeEnum'
+          description: Spoken languages, e.g. ["ar", "en"]
+        years_experience:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        offers_second_opinion:
+          type: boolean
+        offers_telemedicine:
+          type: boolean
+        consultation_fee_sar:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,1})?$
+          nullable: true
+        next_available:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - consultation_fee_sar
+      - hospital
+      - name_ar
+      - name_en
+      - next_available
+      - provider_id
+      - specialties
+      - years_experience
+    Emergency:
+      type: object
+      properties:
+        numbers:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmergencyNumber'
+        hospitals:
+          type: array
+          items:
+            $ref: '#/components/schemas/HospitalCard'
+      required:
+      - hospitals
+      - numbers
+    EmergencyNumber:
+      type: object
+      properties:
+        number:
+          type: string
+        label_en:
+          type: string
+        label_ar:
+          type: string
+      required:
+      - label_ar
+      - label_en
+      - number
+    HistoryMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        turn:
+          allOf:
+          - $ref: '#/components/schemas/TurnResponse'
+          nullable: true
+      required:
+      - content
+      - created_at
+      - id
+      - role
+      - turn
+    HospitalCard:
+      type: object
+      properties:
+        hospital_id:
+          type: integer
+        name_en:
+          type: string
+          maxLength: 200
+        name_ar:
+          type: string
+          maxLength: 200
+        city:
+          $ref: '#/components/schemas/CityEnum'
+        city_name_en:
+          type: string
+        city_name_ar:
+          type: string
+          readOnly: true
+        address_en:
+          type: string
+          maxLength: 300
+        address_ar:
+          type: string
+          maxLength: 300
+        has_emergency:
+          type: boolean
+        emergency_phone:
+          type: string
+          maxLength: 30
+        accreditation:
+          type: string
+          maxLength: 50
+      required:
+      - address_ar
+      - address_en
+      - city
+      - city_name_ar
+      - city_name_en
+      - hospital_id
+      - name_ar
+      - name_en
+    LanguageCodeEnum:
+      enum:
+      - ar
+      - en
+      type: string
+      description: |-
+        * `ar` - Arabic
+        * `en` - English
+    PaginatedDoctorCardList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorCard'
+    PatchedUserRequest:
+      type: object
+      properties:
+        avatar_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 500
+          - type: string
+            maxLength: 0
+    SendMessageRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+      - content
+    SessionCreated:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        disclaimer:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - created_at
+      - disclaimer
+      - language
+      - session_id
+    SessionDetail:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        state:
+          type: object
+          additionalProperties: {}
+        stage:
+          type: string
+        urgency_level:
+          type: string
+        clarification_rounds:
+          type: integer
+        messages_remaining:
+          type: integer
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryMessage'
+      required:
+      - clarification_rounds
+      - language
+      - messages
+      - messages_remaining
+      - session_id
+      - stage
+      - state
+      - urgency_level
+    Specialty:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/CodeEnum'
+        name_en:
+          type: string
+          maxLength: 100
+        name_ar:
+          type: string
+          maxLength: 100
+      required:
+      - code
+      - name_ar
+      - name_en
+    ToolCallTrace:
+      type: object
+      properties:
+        name:
+          type: string
+        args:
+          type: object
+          additionalProperties: {}
+        result_ids:
+          type: array
+          items:
+            type: integer
+        latency_ms:
+          type: integer
+        success:
+          type: boolean
+        error:
+          type: string
+      required:
+      - args
+      - error
+      - latency_ms
+      - name
+      - result_ids
+      - success
+    Trace:
+      type: object
+      properties:
+        state:
+          type: object
+          additionalProperties: {}
+        stage:
+          type: string
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCallTrace'
+        iterations:
+          type: integer
+        grounding_violations:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        rules:
+          type: object
+          additionalProperties: {}
+        llm_provider:
+          type: string
+        llm_model:
+          type: string
+        outcome:
+          type: string
+        fallback_reason:
+          type: string
+        latency_ms:
+          type: integer
+        clarification_rounds:
+          type: integer
+      required:
+      - clarification_rounds
+      - fallback_reason
+      - grounding_violations
+      - iterations
+      - latency_ms
+      - llm_model
+      - llm_provider
+      - outcome
+      - rules
+      - stage
+      - state
+      - tool_calls
+    TurnResponse:
+      type: object
+      properties:
+        message_id:
+          type: integer
+        reply_text:
+          type: string
+        urgency:
+          $ref: '#/components/schemas/UrgencyEnum'
+        urgency_source:
+          $ref: '#/components/schemas/UrgencySourceEnum'
+        next_step:
+          type: string
+        clarifying_questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClarifyingQuestion'
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorCard'
+        emergency:
+          allOf:
+          - $ref: '#/components/schemas/Emergency'
+          nullable: true
+        reasoning_summary:
+          type: string
+        trace:
+          $ref: '#/components/schemas/Trace'
+        disclaimer:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - clarifying_questions
+      - disclaimer
+      - emergency
+      - message_id
+      - next_step
+      - providers
+      - reasoning_summary
+      - reply_text
+      - trace
+      - urgency
+      - urgency_source
+    UrgencyEnum:
+      enum:
+      - EMERGENCY
+      - URGENT
+      - ROUTINE
+      - UNKNOWN
+      type: string
+      description: |-
+        * `EMERGENCY` - EMERGENCY
+        * `URGENT` - URGENT
+        * `ROUTINE` - ROUTINE
+        * `UNKNOWN` - UNKNOWN
+    UrgencySourceEnum:
+      enum:
+      - rules
+      - llm
+      - fallback
+      type: string
+      description: |-
+        * `rules` - rules
+        * `llm` - llm
+        * `fallback` - fallback
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        avatar_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 500
+          - type: string
+            maxLength: 0
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - email
+      - id
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

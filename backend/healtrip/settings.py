@@ -109,15 +109,48 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Django REST Framework
 REST_FRAMEWORK = {
+    # Session auth that enforces CSRF for anonymous users too: chat ownership rides on
+    # the session cookie, so unsafe requests must prove they come from our frontend.
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+        "assistant.api.authentication.CsrfEnforcedSessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    # One error format everywhere: {"error": {"code", "message_en", "message_ar"}}
+    "EXCEPTION_HANDLER": "assistant.api.errors.exception_handler",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Views opt in via `throttle_scope`; chat views declare their own throttle classes.
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {
+        "public": config("PUBLIC_RATE", default="120/min"),
+        "chat_minute": f"{config('CHAT_RATE_PER_MINUTE', default=20, cast=int)}/min",
+        "chat_day": f"{config('CHAT_RATE_PER_DAY', default=200, cast=int)}/day",
+        "chat_session": config("CHAT_SESSION_RATE", default="10/min"),
+        "session_create": config("SESSION_CREATE_RATE", default="30/hour"),
+    },
+    # Client IP from X-Forwarded-For behind exactly N trusted proxies (Railway edge + nginx).
+    "NUM_PROXIES": config("NUM_PROXIES", default=None, cast=lambda v: int(v) if v else None),
 }
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "HealTrip AI Patient Decision Assistant API",
+    "DESCRIPTION": (
+        "Chat API for the patient navigation agent plus the read-only provider directory. "
+        "All provider data is fictional. Not medical advice."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "ENUM_NAME_OVERRIDES": {"LanguageCodeEnum": "providers.choices.LanguageCode"},
+}
+
+# Chat abuse / budget limits
+CHAT_MAX_MESSAGES_PER_SESSION = config("CHAT_MAX_MESSAGES_PER_SESSION", default=50, cast=int)
+DEMO_DAILY_MESSAGE_CAP = config("DEMO_DAILY_MESSAGE_CAP", default=0, cast=int)  # 0 = no cap
+CHAT_RETENTION_DAYS = config("CHAT_RETENTION_DAYS", default=30, cast=int)
 
 # CORS (development only)
 CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="http://localhost:3000", cast=Csv())
