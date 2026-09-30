@@ -103,7 +103,7 @@ class ToolExecution:
     result_hospital_ids: list[int] = field(default_factory=list)
 
 
-def _inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
+def inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
     """Inline Pydantic `$defs` so each tool's input_schema is self-contained."""
     defs = schema.pop("$defs", {})
 
@@ -120,7 +120,7 @@ def _inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def input_schema(spec: ToolSpec) -> dict[str, Any]:
-    schema = _inline_refs(spec.input_model.model_json_schema())
+    schema = inline_refs(spec.input_model.model_json_schema())
     schema.pop("title", None)
     schema["additionalProperties"] = False
     return schema

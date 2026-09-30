@@ -57,3 +57,40 @@ Short ADR-style entries. Each records **context → decision → consequences**.
 **Decision.** `registry.execute()` catches validation errors, unknown tool names and `DatabaseError`, and returns `{"error": {"code", "message", ...}}`. The agent loop passes that result back to the model as a `tool_result` with `is_error: true`.
 
 **Consequences.** The model can self-correct invalid arguments, which is the usual cause. A DB outage degrades one tool call instead of crashing the request. Every failure is still logged to `ToolCallLog` with its error code.
+
+## ADR-008 — Official `anthropic` SDK with a hand-written loop (no LangChain, no SDK tool runner)
+
+**Decision.** `assistant/llm/client.py` calls the Messages API directly with native tool use. `assistant/agent/loop.py` is about 100 lines.
+
+**Why.**
+- *Transparency.* Every branch of the loop is a safety control: the iteration cap, the single repair per failure kind, grounding before accepting, and `submit_response` having to be called alone. These need to be visible in one file and easy to explain line by line.
+- *Testability.* The loop depends on a three-method `LLMClient` protocol, so `MockLLMClient` scripts drive every failure path in CI without network access.
+- *Fewer abstractions.* LangChain would add agent and memory abstractions and version churn that we'd need to work around to enforce these rules. The SDK's beta tool runner hides the exact points where we validate and correct.
+
+## ADR-009 — The final answer is a `submit_response` tool call validated by Pydantic
+
+**Context.** We need schema-constrained output for the turn result (urgency, next step, IDs, questions, state updates). Current Claude models reject forced `tool_choice` (`any`/`tool`).
+
+**Decision.** `AgentResponse` generates the `submit_response` input schema. `tool_choice` is `auto` and the prompt requires finishing with `submit_response`, called alone. The loop enforces the rest:
+- A prose answer gets one correction.
+- `submit_response` called alongside other tools is rejected, because the model answered without seeing the results.
+- A schema violation gets one repair, then the safe fallback.
+- Cross-field rules (`NEED_MORE_INFO` needs questions; `EMERGENCY` needs `CALL_EMERGENCY` or `GO_TO_ER`) are model validators.
+
+## ADR-010 — PII is redacted before storage and before the LLM
+
+**Decision.** `orchestrator.sanitize()` strips control and bidi-override characters (a prompt-smuggling vector) and redacts emails, phone numbers, Saudi ID/Iqama-like numbers and long digit runs *before* the message is stored or sent to the LLM.
+
+**Consequences.** The LLM provider never receives identifiers the patient pasted by mistake. The navigation task needs none of them; city is the most specific location we use.
+
+## ADR-011 — Model and request settings
+
+**Decision.**
+- `LLM_MODEL` defaults to **`claude-sonnet-5-5`**, the current Sonnet, as the brief asked for a current Sonnet model. It is configurable.
+- `output_config.effort` defaults to `medium`. This is a conversational task, and effort is tunable through `LLM_EFFORT`.
+- Thinking is left at the model default (adaptive).
+- The static system prompt carries `cache_control`, so the system prompt and tools are cached across turns. Per-session facts go in a `<session_context>` block in the user turn, so the cached prefix never changes.
+- **Server-side refusal fallback** (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`) is on by default: if the primary model declines on a safety classifier (possible with medical wording), the API re-runs the request on a fallback model within the same call. Set `LLM_REFUSAL_FALLBACK=False` to disable it. A refusal that still gets through becomes the safe fallback response.
+- SDK retries are disabled (`max_retries=0`) and `tenacity` owns the retry policy: exponential backoff on timeouts, connection errors, 429 and 5xx only. A 4xx fails fast.
+
+**History.** Each turn rebuilds the conversation from stored text (the last 12 messages plus the structured state). Within a turn the message list is append-only and assistant content is echoed back unchanged. After a server-side fallback, blocks from the declined attempt are dropped, as the API requires.
