@@ -43,6 +43,13 @@ EMERGENCY_PHRASES = [
     "فقد الوعي فجأة",
     "نزيف شديد ما يوقف",
     "أفكر في الانتحار",
+    # Regression (found in UI testing): adjective between "pain" and "chest" + verb "يتعرق"
+    "أبوي عنده ألم شديد في الصدر يمتد للذراع ويتعرق",
+    "ألم قوي جدا في الصدر",
+    "وجع الصدر شديد",
+    "severe chest pain",
+    "I have crushing pain in my chest",
+    "عندي ألم خفيف في الصدر ويتعرق",
     # With diacritics and tatweel (normalization)
     "أَلَمٌ فِي الصَّدْرِ وَضِيقٌ فِي التَّنَفُّس",
     "ألـــم في الصدر وتعرّق",
@@ -57,6 +64,7 @@ URGENT_PHRASES = [
     "I feel dizzy sometimes",
     "عندي ألم في الصدر ومو متأكد هل أروح طوارئ أو أشوف دكتور قلب",
     "أحس بضيق في التنفس لما أمشي",
+    "عندي ألم خفيف في الصدر",  # adjective between words still detected (as URGENT)
 ]
 
 NO_FLAG_PHRASES = [

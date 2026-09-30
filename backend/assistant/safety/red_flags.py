@@ -150,8 +150,9 @@ CONCEPTS: dict[str, list[str]] = {
         r"\b(?:tight|heavy|crushing|painful) chest",
         r"\bheart (?:pain|hurts)|\bmy heart (?:hurts|is hurting)",
         # Arabic: الم/وجع/ضغط/ثقل/ضيق في الصدر / بالصدر / صدري
-        _AR_PREFIX + r"(?:الم|الام|اوجاع|وجع|ضغط|ثقل|ضيق|انقباض|نغزه|نغزات|كتمه)\s+"
-        r"(?:في\s+|على\s+)?(?:ب?ال)?صدر",
+        # Up to 2 words may sit between the noun and "chest" ("ألم شديد جدا في الصدر").
+        _AR_PREFIX + r"(?:الم|الام|اوجاع|وجع|ضغط|ثقل|ضيق|انقباض|نغزه|نغزات|كتمه)"
+        r"(?:\s+\S+){0,2}?\s+(?:في\s+|على\s+)?(?:ب?ال)?صدر",
         r"صدري\s+(?:يوجعني|يولمني|يالمني|يعورني|ضايق|مضغوط|ثقيل)",
         r"(?:يوجعني|يولمني|يعورني)\s+صدري",
         _AR_PREFIX + r"(?:الم|وجع)\s+(?:في\s+)?(?:ب?ال)?قلب",
@@ -196,7 +197,15 @@ CONCEPTS: dict[str, list[str]] = {
         r"\bsweat(?:ing|y|s)?\b",
         r"\bcold sweat",
         r"\bclammy",
-        _AR_PREFIX + r"(?:تعرق|اتعرق|عرق بارد|عرقان)",
+        _AR_PREFIX + r"(?:تعرق|اتعرق|يتعرق|تتعرق|عرق بارد|عرقان|يعرق)",
+    ],
+    # Severe/crushing chest pain is an emergency by itself (no companion symptom needed).
+    "SEVERE_CHEST_PAIN": [
+        r"\b(?:severe|crushing|intense|unbearable|excruciating|worst|very bad) "
+        r"(?:chest (?:pain|pressure)|pain (?:in|on) (?:my |the )?chest)",
+        _AR_PREFIX + r"(?:الم|وجع|ضغط)\s+(?:شديد|شديده|قوي|فظيع|لا يحتمل|ما ينطاق)\s+"
+        r"(?:جدا\s+)?(?:في\s+|على\s+)?(?:ب?ال)?صدر",
+        _AR_PREFIX + r"(?:الم|وجع)\s+(?:ب?ال)?صدر\s+(?:شديد|قوي|فظيع)",
     ],
     "NAUSEA": [
         r"\bnause\w*",
@@ -272,6 +281,7 @@ _COMPILED: dict[str, list[re.Pattern[str]]] = {
 
 # Concepts that are emergencies on their own.
 _STANDALONE_EMERGENCY = {
+    "SEVERE_CHEST_PAIN",
     "SEVERE_BREATHING",
     "STROKE_SIGN",
     "THUNDERCLAP_HEADACHE",
