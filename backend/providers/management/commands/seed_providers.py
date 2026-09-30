@@ -73,7 +73,7 @@ class Command(BaseCommand):
 
     def _seed_slots(self, doctors: list[Doctor]) -> int:
         today = timezone.localdate(timezone=RIYADH_TZ)
-        created = 0
+        slots = []
         for doctor in doctors:
             if not doctor.is_active:
                 continue
@@ -82,16 +82,20 @@ class Command(BaseCommand):
                 if day.weekday() == FRIDAY:
                     continue
                 for slot_index, slot_time in enumerate(self._slot_times(doctor.pk, day_offset)):
-                    start = datetime.combine(day, slot_time, tzinfo=RIYADH_TZ)
-                    # Deterministically pre-book some slots so availability looks realistic.
-                    booked = (doctor.pk + day_offset + slot_index) % 4 == 0
-                    _, was_created = AvailabilitySlot.objects.get_or_create(
-                        doctor=doctor,
-                        start_time=start,
-                        defaults={"duration_minutes": 30, "is_booked": booked},
+                    slots.append(
+                        AvailabilitySlot(
+                            doctor=doctor,
+                            start_time=datetime.combine(day, slot_time, tzinfo=RIYADH_TZ),
+                            duration_minutes=30,
+                            # Deterministically pre-book some slots so availability looks realistic.
+                            is_booked=(doctor.pk + day_offset + slot_index) % 4 == 0,
+                        )
                     )
-                    created += int(was_created)
-        return created
+        before = AvailabilitySlot.objects.count()
+        # ignore_conflicts + the (doctor, start_time) unique constraint = idempotent,
+        # and existing rows (including ones marked booked) are never overwritten.
+        AvailabilitySlot.objects.bulk_create(slots, ignore_conflicts=True)
+        return AvailabilitySlot.objects.count() - before
 
     @staticmethod
     def _slot_times(doctor_pk: int, day_offset: int) -> list[time]:

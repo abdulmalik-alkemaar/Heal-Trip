@@ -89,13 +89,13 @@ Django app `assistant` models:
 
 In `assistant/tools/`. Each tool has: a Pydantic input schema, a JSON schema exported for the LLM, a pure function that queries the DB, and a structured output. All tools are READ-ONLY.
 
-- [ ] `search_providers(specialty: SpecialtyCode enum, city: City enum | None, language: "ar"|"en"|None, second_opinion: bool|None, telemedicine: bool|None, limit: int 1–5)` → list of `{provider_id, hospital_id, specialty_codes, city, languages, offers_second_opinion, next_available}`. Returns explicit `{"results": [], "reason": "no_match"}` when empty, plus `nearby_alternatives` (same specialty other cities) so the agent can offer honest alternatives.
-- [ ] `get_provider_details(provider_id: int)` → full details or a structured `not_found` error.
-- [ ] `check_availability(provider_id: int, days_ahead: int 1–14)` → up to 5 upcoming free slots.
-- [ ] `get_emergency_info(city: City enum | None)` → hospitals with `has_emergency=True` plus national emergency numbers.
-- [ ] Tool registry: single place mapping names → schema + function. Unknown tool names are rejected.
-- [ ] Every tool call is logged to `ToolCallLog` with latency and errors.
-- [ ] Unit tests for each tool incl. invalid arguments and empty results.
+- [x] `search_providers(specialty: SpecialtyCode enum, city: City enum | None, language: "ar"|"en"|None, second_opinion: bool|None, telemedicine: bool|None, limit: int 1–5)` → list of `{provider_id, hospital_id, specialty_codes, city, languages, offers_second_opinion, next_available}`. Returns explicit `{"results": [], "reason": "no_match"}` when empty, plus `nearby_alternatives` (same specialty other cities) so the agent can offer honest alternatives.
+- [x] `get_provider_details(provider_id: int)` → full details or a structured `not_found` error.
+- [x] `check_availability(provider_id: int, days_ahead: int 1–14)` → up to 5 upcoming free slots.
+- [x] `get_emergency_info(city: City enum | None)` → hospitals with `has_emergency=True` plus national emergency numbers.
+- [x] Tool registry: single place mapping names → schema + function. Unknown tool names are rejected.
+- [x] Every tool call is logged to `ToolCallLog` with latency and errors.
+- [x] Unit tests for each tool incl. invalid arguments and empty results.
 
 ## 6. Phase 5 — AI Agent
 

@@ -41,3 +41,19 @@ Short ADR-style entries. Each records **context → decision → consequences**.
 **Decision.** `providers/choices.py` defines `City` and `SpecialtyCode` once. The model field choices, the seed data and the Pydantic tool-input schemas all import them.
 
 **Consequences.** The JSON schema the LLM sees lists the only valid values, and Pydantic rejects anything else before the query runs. Adding a city is a code change plus a migration, which is acceptable for a prototype. A production system would load the vocabulary from the DB at startup.
+
+## ADR-006 — Tool results are ID-based; only `search_providers` IDs are recommendable
+
+**Context.** The model has to point at real providers without fabricating details, and a guessed ID must not become a "recommendation".
+
+**Decision.**
+1. `search_providers` returns **IDs and structured facts only** (`provider_id`, `hospital_id`, specialty codes, city, languages, flags, next slot). It returns no names, phones or fees, so the model has nothing to paraphrase wrongly. The UI renders those from the DB.
+2. The grounding whitelist is the set of doctor IDs returned by **`search_providers`** calls in the current session, including `nearby_alternatives`. IDs seen only through `get_provider_details` or `check_availability` don't count. This closes a "laundering" hole where the model guesses an ID, fetches its details, and then recommends a real provider that was never matched against the patient's criteria.
+
+**Consequences.** Recommendations always trace back to a logged search whose filters (specialty, city, language, second opinion) are visible in the trace. `get_provider_details` stays available for extra facts, such as accreditation.
+
+## ADR-007 — Tools never raise; failures are structured tool results
+
+**Decision.** `registry.execute()` catches validation errors, unknown tool names and `DatabaseError`, and returns `{"error": {"code", "message", ...}}`. The agent loop passes that result back to the model as a `tool_result` with `is_error: true`.
+
+**Consequences.** The model can self-correct invalid arguments, which is the usual cause. A DB outage degrades one tool call instead of crashing the request. Every failure is still logged to `ToolCallLog` with its error code.
