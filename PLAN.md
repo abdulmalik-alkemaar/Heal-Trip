@@ -74,16 +74,16 @@ Django app `assistant` models:
 
 ## 4. Phase 3 — Safety layer: deterministic Red-Flag Engine
 
-- [ ] `assistant/safety/red_flags.py`: pure Python, no LLM. Detects emergency red flags in BOTH English and Arabic text (keyword/phrase patterns + combinations), e.g.:
+- [x] `assistant/safety/red_flags.py`: pure Python, no LLM. Detects emergency red flags in BOTH English and Arabic text (keyword/phrase patterns + combinations), e.g.:
   - chest pain/pressure WITH any of: shortness of breath, pain spreading to arm/jaw/neck/back, sweating, nausea, fainting/dizziness
   - sudden severe headache, face drooping, one-sided weakness, slurred speech (stroke signs)
   - severe difficulty breathing, loss of consciousness, heavy bleeding
   - Arabic equivalents: ألم في الصدر، ضيق في التنفس، ينتشر للذراع/الفك، تعرق، إغماء، دوخة، etc.
-- [ ] Also evaluates the structured `state` slots (e.g. `radiating_pain=true`), not only raw text.
-- [ ] Returns `{level: EMERGENCY|URGENT|ROUTINE|UNKNOWN, matched_flags: [...]}`.
+- [x] Also evaluates the structured `state` slots (e.g. `radiating_pain=true`), not only raw text.
+- [x] Returns `{level: EMERGENCY|URGENT|ROUTINE|UNKNOWN, matched_flags: [...]}`.
 - [ ] If EMERGENCY: the orchestrator immediately returns an emergency response (call 997 — Saudi Red Crescent; mention 911 also works in KSA; show nearest ER hospitals from DB via the `get_emergency_info` tool function called directly by code) WITHOUT waiting for further clarification. This path must work even if the LLM is down.
 - [ ] Rule: final urgency = max(rules_urgency, llm_urgency). LLM can never downgrade.
-- [ ] Unit tests for many phrases in both languages, including negatives ("no chest pain" should not trigger — handle simple negation reasonably and document limitations).
+- [x] Unit tests for many phrases in both languages, including negatives ("no chest pain" should not trigger — handle simple negation reasonably and document limitations).
 
 ## 5. Phase 4 — Tools (read-only, strictly validated)
 
