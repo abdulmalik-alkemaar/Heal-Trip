@@ -42,13 +42,30 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # `tsc -b` follows the project references (the root tsconfig has "files": [],
+      # so a plain `tsc --noEmit` would type-check nothing).
       - name: TypeScript check
         working-directory: frontend
-        run: npx tsc --noEmit
+        run: npx tsc -b
+
+      - name: ESLint
+        working-directory: frontend
+        run: npm run lint
 
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: healtrip
+          POSTGRES_USER: healtrip
+          POSTGRES_PASSWORD: healtrip
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U healtrip"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -62,11 +79,20 @@ jobs:
         working-directory: backend
         run: uv sync --frozen
 
+      - name: Django system + migration checks
+        working-directory: backend
+        run: uv run python manage.py check && uv run python manage.py makemigrations --check --dry-run
+        env:
+          DATABASE_URL: postgresql://healtrip:healtrip@localhost:5432/healtrip
+
       - name: Run tests
         working-directory: backend
         run: uv run pytest --cov --cov-report=xml
         env:
           SECRET_KEY: test-secret-key-for-ci
+          DATABASE_URL: postgresql://healtrip:healtrip@localhost:5432/healtrip
+          # The agent is tested with the deterministic MockLLMClient: no API key in CI.
+          LLM_PROVIDER: mock
           GOOGLE_CLIENT_ID: test-client-id
           GOOGLE_CLIENT_SECRET: test-client-secret
 
@@ -89,7 +115,11 @@ jobs:
 
       - name: Run tests
         working-directory: frontend
-        run: npx vitest run --passWithNoTests
+        run: npx vitest run
+
+      - name: Production build
+        working-directory: frontend
+        run: npm run build
 
   build-docker:
     name: Build Docker Images

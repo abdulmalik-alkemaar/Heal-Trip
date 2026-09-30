@@ -187,7 +187,7 @@ Keep it clean and simple. No time on fancy visuals.
 
 ## 12. Phase 11 — Tests & evaluation
 
-- [ ] Backend unit tests (pytest + pytest-django): red flags, tools, grounding, schemas, API endpoints, error handler, throttling.
+- [x] Backend unit tests (pytest + pytest-django): red flags, tools, grounding, schemas, API endpoints, error handler, throttling.
 - [x] Agent tests using `MockLLMClient` (no API key needed) covering: tool call → recommend; invalid tool args → self-correct; max iterations; invalid final JSON; fake provider ID; LLM down + emergency.
 - [ ] `evals/scenarios.yaml`: 15 scenarios in English AND Arabic with expected `urgency` and `next_step`, e.g.:
   1. chest pain + shortness of breath + arm pain → EMERGENCY / CALL_EMERGENCY
