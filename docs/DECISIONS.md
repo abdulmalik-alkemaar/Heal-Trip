@@ -117,3 +117,40 @@ Short ADR-style entries. Each records **context → decision → consequences**.
 The first two layers use DRF throttles on the Django cache (Redis in production per the template, LocMem in development).
 
 **Consequences.** The worst-case daily LLM spend of a public demo link is bounded by `DEMO_DAILY_MESSAGE_CAP × AGENT_MAX_ITERATIONS` model calls.
+
+## ADR-014 — Django + DRF instead of Node.js/NestJS
+
+**Context.** The brief suggested Node.js/NestJS "or whatever you prefer".
+
+**Decision.** Django 6 + DRF, from the required cookiecutter template.
+
+**Why.**
+- The ORM gives parameterized, injection-safe queries for the tools, and Postgres features (`ArrayField`, GIN indexes) come built in.
+- The admin gives a free audit UI over sessions, runs, tool calls and the directory.
+- Migrations, sessions, CSRF and the auth stack (allauth) are mature and secure by default.
+- Python has the first-party Anthropic SDK, Pydantic for strict schemas, and fast pytest-django tests.
+- NestJS could do all of this. The architecture (orchestrator → rules → loop → tools → grounding) is framework-agnostic and would port directly.
+
+## ADR-015 — Structured SQL filters for provider search (no vector search / RAG)
+
+**Decision.** `search_providers` uses exact SQL filters (specialty, city, language, second opinion, telemedicine), with deterministic ranking by rating, experience, then id.
+
+**Why.** The questions the agent asks the directory are *structured*: "cardiologist in Jeddah who offers second opinions and speaks Arabic". Exact filters are correct, explainable, cheap and testable. Semantic retrieval adds a failure mode here: approximate matches that look plausible but violate a constraint. RAG is on the roadmap for a different job, grounding *triage guidance* in clinical guidelines. It isn't for choosing providers.
+
+## ADR-016 — A deterministic safety layer in front of the LLM
+
+**Decision.** `assistant/safety/red_flags.py` runs before the LLM (and short-circuits on EMERGENCY) and again after it on the merged state. The final urgency is `max(rules, llm)`.
+
+**Why.**
+- *Availability.* The emergency answer must work when the LLM is down, slow or rate-limited.
+- *Latency.* No round-trip before telling someone to call 997.
+- *Predictability.* Rules are unit-tested phrase by phrase in both languages, and a model's behaviour can change between versions.
+- *Asymmetric risk.* The LLM is allowed to *escalate* (it catches what the rules miss), never to de-escalate.
+
+**Trade-off.** Keyword rules have false positives and negatives. We bias toward escalation (uncertainty is never treated as negation) and keep the LLM as a second net.
+
+## ADR-017 — The mock LLM doubles as an offline demo
+
+**Decision.** `MockLLMClient()` without a script runs `mock_policy.demo_policy`, a keyword heuristic that speaks the same tool protocol as Claude.
+
+**Why.** Reviewers can run the full stack (rules → loop → tools → grounding → UI) with no API key, and CI exercises the real pipeline end to end. The trace panel labels these turns `mock`, so nobody mistakes them for model output. The eval results in the README come from the **real** model.

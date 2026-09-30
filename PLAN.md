@@ -225,16 +225,16 @@ Keep it clean and simple. No time on fancy visuals.
 17. Deployment notes (Railway, using the template's env files)
 
 Also create:
-- [ ] `docs/ARCHITECTURE.md` (deeper version of sections 4–5)
-- [ ] `docs/AGENT_DESIGN.md` (prompt, tools, loop, grounding)
-- [ ] `docs/DECISIONS.md` (ADR-style short entries)
+- [x] `docs/ARCHITECTURE.md` (deeper version of sections 4–5)
+- [x] `docs/AGENT_DESIGN.md` (prompt, tools, loop, grounding)
+- [x] `docs/DECISIONS.md` (ADR-style short entries)
 - [x] `docs/SECURITY.md`
 - [ ] `NOTES_FOR_REVIEWER.md`: short, honest notes, assumptions, time spent, and what I'd improve.
 
 ## 14. Phase 13 — Deployment
 
 - [ ] Make sure the app runs fully with `docker compose up` locally (backend, frontend, postgres), and `seed_providers` runs on first start or via one documented command.
-- [ ] Prepare Railway deployment using the template's `.env.backend.railway` / `.env.frontend.railway`; write exact step-by-step deployment instructions for me in `docs/DEPLOYMENT.md` (I will do the account/login steps myself).
+- [x] Prepare Railway deployment using the template's `.env.backend.railway` / `.env.frontend.railway`; write exact step-by-step deployment instructions for me in `docs/DEPLOYMENT.md` (I will do the account/login steps myself).
 - [x] Add a demo-safety setting: stricter throttling and a daily message cap in production.
 
 ## 15. Final verification (do this last)
