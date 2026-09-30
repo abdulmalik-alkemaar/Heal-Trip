@@ -1,18 +1,23 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom'
+import Navbar from './components/Navbar/Navbar'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
-import Navbar from './components/Navbar/Navbar'
-import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
-import HomePage from './pages/Home/HomePage'
+import ChatPage from './pages/Chat/ChatPage'
 import LoginPage from './pages/Login/LoginPage'
 
 function AppLayout() {
+  const { t } = useTranslation()
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-4 sm:px-6 lg:px-8">
         <Outlet />
       </main>
+      <footer className="border-t border-slate-200 bg-white px-4 py-3 text-center text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+        <p>{t('footer.disclaimer')}</p>
+        <p className="mt-0.5">{t('footer.fictional')}</p>
+      </footer>
     </div>
   )
 }
@@ -23,16 +28,11 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <Routes>
-            {/* App routes with navbar */}
             <Route element={<AppLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/app" element={<HomePage />} />
+              {/* The chat is public: reviewers need no login (Google sign-in is optional). */}
+              <Route path="/" element={<ChatPage />} />
+              <Route path="/app" element={<ChatPage />} />
               <Route path="/app/login" element={<LoginPage />} />
-
-              {/* Protected routes — add your authenticated pages here */}
-              <Route element={<ProtectedRoute />}>
-                {/* Example: <Route path="/app/dashboard" element={<DashboardPage />} /> */}
-              </Route>
             </Route>
           </Routes>
         </AuthProvider>

@@ -1,0 +1,143 @@
+{
+  "app": {
+    "title": "هيل تريب",
+    "tagline": "مساعد القرار الذكي للمرضى"
+  },
+  "nav": {
+    "signIn": "تسجيل الدخول عبر Google",
+    "signInShort": "دخول",
+    "signOut": "تسجيل الخروج",
+    "theme": "المظهر: {{mode}}",
+    "switchLanguage": "English",
+    "switchLanguageLabel": "التبديل إلى الإنجليزية",
+    "showTrace": "سجل الوكيل",
+    "hideTrace": "إخفاء السجل",
+    "newChat": "محادثة جديدة"
+  },
+  "chat": {
+    "placeholder": "صف ما تشعر به… (من فضلك بدون أسماء أو أرقام هوية)",
+    "send": "إرسال",
+    "inputLabel": "رسالتك",
+    "counter": "{{count}} / {{max}}",
+    "typing": "المساعد يفكر…",
+    "you": "أنت",
+    "assistant": "مساعد هيل تريب",
+    "emptyTitle": "كيف أساعدك في تحديد خطوتك التالية؟",
+    "emptySubtitle": "أخبرني بأعراضك أو بما تبحث عنه. سأطرح بعض الأسئلة، وأقيّم مدى الاستعجال، وأجد لك أطباء مناسبين من دليلنا.",
+    "examplesTitle": "جرّب مثالًا",
+    "languageLocked": "ستستمر هذه المحادثة باللغة {{language}}. ابدأ محادثة جديدة لتغيير اللغة.",
+    "messagesRemaining": "تبقّى {{count}} رسالة في هذه المحادثة",
+    "quickRepliesLabel": "إجابات سريعة",
+    "providersTitle": "خيارات موثّقة من دليل هيل تريب",
+    "loadingHistory": "جارٍ تحميل المحادثة…"
+  },
+  "examples": {
+    "chestPainTask": "I have chest pain and I'm not sure whether I should see a cardiologist, go to the ER, or seek a second opinion.",
+    "secondOpinion": "I was diagnosed with a heart valve problem and I'd like a second opinion in Jeddah.",
+    "notFound": "I need a neurologist in Abha for frequent migraines.",
+    "arChestPain": "عندي ألم في الصدر ومو متأكد هل أروح الطوارئ أو أشوف دكتور قلب",
+    "arEmergency": "أبوي عنده ألم شديد في الصدر يمتد للذراع ويتعرق",
+    "arKnee": "عندي ألم في الركبة من شهر وأبغى دكتور عظام في الرياض يتكلم عربي"
+  },
+  "urgency": {
+    "EMERGENCY": "طارئ",
+    "URGENT": "عاجل",
+    "ROUTINE": "روتيني",
+    "UNKNOWN": "غير مُقيَّم",
+    "EMERGENCY_desc": "حالة طارئة محتملة — اطلب المساعدة الآن.",
+    "URGENT_desc": "يُفضّل أن يفحصك طبيب قريبًا (اليوم أو خلال يوم أو يومين).",
+    "ROUTINE_desc": "لا توجد علامات طارئة بناءً على ما ذكرته.",
+    "UNKNOWN_desc": "تعذّر تقييم درجة الاستعجال."
+  },
+  "nextStep": {
+    "CALL_EMERGENCY": "اتصل بالطوارئ (997)",
+    "GO_TO_ER": "توجّه إلى قسم الطوارئ",
+    "SEE_SPECIALIST": "راجع طبيبًا مختصًا",
+    "SECOND_OPINION": "احصل على رأي طبي ثانٍ",
+    "NEED_MORE_INFO": "بعض الأسئلة أولًا"
+  },
+  "emergency": {
+    "callNow": "اتصل على 997 الآن",
+    "call": "اتصل على {{number}}",
+    "nearestEr": "أقسام الطوارئ",
+    "numbersTitle": "أرقام الطوارئ",
+    "erPhone": "هاتف الطوارئ"
+  },
+  "provider": {
+    "experience_zero": "بدون خبرة مسجّلة",
+    "experience_one": "سنة خبرة واحدة",
+    "experience_two": "سنتان من الخبرة",
+    "experience_few": "{{count}} سنوات خبرة",
+    "experience_many": "{{count}} سنة خبرة",
+    "experience_other": "{{count}} سنة خبرة",
+    "fee": "{{fee}} ريال",
+    "feeLabel": "رسوم الاستشارة",
+    "nextAvailable": "أقرب موعد متاح",
+    "noSlots": "لا توجد مواعيد متاحة خلال 14 يومًا",
+    "languages": "يتحدث",
+    "secondOpinion": "رأي ثانٍ",
+    "telemedicine": "استشارة عن بُعد",
+    "rating": "التقييم {{rating}}",
+    "accreditation": "الاعتماد: {{value}}",
+    "er": "يوجد قسم طوارئ"
+  },
+  "languages": {
+    "ar": "العربية",
+    "en": "الإنجليزية"
+  },
+  "errors": {
+    "network": "يبدو أنك غير متصل بالإنترنت أو يتعذّر الوصول إلى الخادم.",
+    "timeout": "استغرق المساعد وقتًا طويلًا للرد.",
+    "rate_limited": "ترسل رسائل بسرعة كبيرة. يرجى الانتظار قليلًا.",
+    "rate_limited_wait": "رسائل كثيرة. يرجى الانتظار حوالي {{seconds}} ثانية.",
+    "session_limit": "وصلت هذه المحادثة إلى الحد الأقصى للرسائل. يرجى بدء محادثة جديدة.",
+    "not_found": "هذه المحادثة لم تعد متاحة. يرجى بدء محادثة جديدة.",
+    "csrf": "انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى.",
+    "validation": "تعذّر إرسال الرسالة. يرجى مراجعتها والمحاولة مرة أخرى.",
+    "server": "حدث خطأ من جهتنا.",
+    "emergencyHint": "إذا كانت حالة طارئة فاتصل على 997 الآن.",
+    "retry": "إعادة المحاولة",
+    "newChat": "بدء محادثة جديدة"
+  },
+  "trace": {
+    "title": "سجل الوكيل",
+    "subtitle": "ما قام به الوكيل في آخر رد (للمراجعين).",
+    "empty": "أرسل رسالة لرؤية سجل تفكير الوكيل.",
+    "stage": "المرحلة",
+    "urgency": "درجة الاستعجال النهائية",
+    "source": "حدّدها",
+    "source_rules": "القواعد الثابتة",
+    "source_llm": "النموذج اللغوي",
+    "source_fallback": "رد احتياطي آمن",
+    "rules": "قواعد العلامات الخطرة",
+    "noFlags": "لم تُطابق أي علامة خطرة",
+    "llm": "النموذج",
+    "iterations": "عدد الدورات",
+    "latency": "زمن الاستجابة",
+    "outcome": "النتيجة",
+    "reasoning": "ملخص التفكير",
+    "state": "البيانات المستخلصة",
+    "noState": "لم يُستخلص شيء بعد",
+    "toolCalls": "استدعاءات الأدوات",
+    "noToolCalls": "لم تُستدعَ أدوات في هذا الرد",
+    "args": "المدخلات",
+    "resultIds": "المعرّفات المُعادة",
+    "ok": "نجح",
+    "failed": "فشل",
+    "grounding": "مخالفات التحقق",
+    "noViolations": "لا يوجد — كل التوصيات موثّقة",
+    "rounds": "جولات الأسئلة المستخدمة"
+  },
+  "stage": {
+    "INTAKE": "الاستقبال",
+    "CLARIFY": "التوضيح",
+    "ASSESS": "التقييم",
+    "SEARCH": "البحث",
+    "RECOMMEND": "التوصية",
+    "EMERGENCY": "طوارئ"
+  },
+  "footer": {
+    "disclaimer": "يقدّم مساعد هيل تريب إرشادات للتوجيه فقط، وليس نصيحة طبية أو تشخيصًا. في الحالات الطارئة اتصل على 997.",
+    "fictional": "نموذج أولي: جميع الأطباء والمستشفيات المعروضة افتراضية."
+  }
+}

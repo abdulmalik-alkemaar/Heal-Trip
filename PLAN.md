@@ -168,22 +168,22 @@ Use the official `anthropic` Python SDK directly with native tool use. Do NOT us
 - [x] Max iterations exceeded → fallback.
 - [x] DB error inside a tool → structured tool error, no crash, logged.
 - [x] Emergency path works even when `LLM_PROVIDER` fails completely (add a test that simulates LLM failure + chest pain with shortness of breath → still returns EMERGENCY with 997 and ER hospitals).
-- [ ] Frontend: network errors, timeouts, and 429 show friendly bilingual messages with a retry button.
+- [x] Frontend: network errors, timeouts, and 429 show friendly bilingual messages with a retry button.
 - [x] Structured logging (JSON logs) with session id and no PII.
 
 ## 11. Phase 10 — Frontend (React + TS + Vite + Tailwind from template)
 
 Keep it clean and simple. No time on fancy visuals.
-- [ ] `react-i18next` with `en.json` and `ar.json` for ALL UI strings.
-- [ ] Language toggle sets `<html lang dir>` (`ar` → `rtl`). Use Tailwind logical utilities (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`, `text-start`) — never `ml-/mr-/left-/right-` for layout. Arabic font: IBM Plex Sans Arabic (with fallback).
-- [ ] Chat page: message list, input box (max length counter), send button, typing/loading indicator, auto-scroll.
-- [ ] Clarifying questions rendered as quick-reply chips (click sends the answer).
-- [ ] Urgency banner: EMERGENCY = red banner with tap-to-call `tel:997` button and nearest ER hospitals; URGENT = amber; ROUTINE = neutral.
-- [ ] Provider cards rendered from API `providers[]` (DB data): name, specialty, hospital, city, languages, second-opinion/telemedicine badges, fee, next available slot. Localized by current language.
-- [ ] "Agent Trace" toggleable side panel (important for reviewers): current stage, extracted state slots, each tool call (name, args, result IDs, latency, success), iterations count, urgency + source (rules vs LLM), grounding violations.
-- [ ] Visible disclaimer in the footer.
-- [ ] Example prompt buttons on the empty state (EN + AR), including the exact chest-pain example from the task.
-- [ ] Respect the template's dark/light theme; make sure it works on mobile width.
+- [x] `react-i18next` with `en.json` and `ar.json` for ALL UI strings.
+- [x] Language toggle sets `<html lang dir>` (`ar` → `rtl`). Use Tailwind logical utilities (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`, `text-start`) — never `ml-/mr-/left-/right-` for layout. Arabic font: IBM Plex Sans Arabic (with fallback).
+- [x] Chat page: message list, input box (max length counter), send button, typing/loading indicator, auto-scroll.
+- [x] Clarifying questions rendered as quick-reply chips (click sends the answer).
+- [x] Urgency banner: EMERGENCY = red banner with tap-to-call `tel:997` button and nearest ER hospitals; URGENT = amber; ROUTINE = neutral.
+- [x] Provider cards rendered from API `providers[]` (DB data): name, specialty, hospital, city, languages, second-opinion/telemedicine badges, fee, next available slot. Localized by current language.
+- [x] "Agent Trace" toggleable side panel (important for reviewers): current stage, extracted state slots, each tool call (name, args, result IDs, latency, success), iterations count, urgency + source (rules vs LLM), grounding violations.
+- [x] Visible disclaimer in the footer.
+- [x] Example prompt buttons on the empty state (EN + AR), including the exact chest-pain example from the task.
+- [x] Respect the template's dark/light theme; make sure it works on mobile width.
 
 ## 12. Phase 11 — Tests & evaluation
 
@@ -200,7 +200,7 @@ Keep it clean and simple. No time on fancy visuals.
   8. stroke signs → EMERGENCY
   …and more.
 - [ ] `python manage.py run_evals` (or `evals/run.py`) runs scenarios against the real LLM when a key is present and prints a results table (scenario, expected, actual, pass/fail, grounding violations). Save the last results to `evals/RESULTS.md` and include the table in the README.
-- [ ] Frontend: at least a few component tests (Vitest) for RTL switching and rendering provider cards / emergency banner.
+- [x] Frontend: at least a few component tests (Vitest) for RTL switching and rendering provider cards / emergency banner.
 - [ ] GitHub Actions CI (from template) runs lint + backend tests (with mock LLM) + frontend build/tests. Must pass.
 
 ## 13. Phase 12 — Documentation (README is critical)

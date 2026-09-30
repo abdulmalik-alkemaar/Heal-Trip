@@ -1,0 +1,139 @@
+{
+  "app": {
+    "title": "HealTrip",
+    "tagline": "AI Patient Decision Assistant"
+  },
+  "nav": {
+    "signIn": "Sign in with Google",
+    "signInShort": "Sign in",
+    "signOut": "Sign out",
+    "theme": "Theme: {{mode}}",
+    "switchLanguage": "العربية",
+    "switchLanguageLabel": "Switch to Arabic",
+    "showTrace": "Agent trace",
+    "hideTrace": "Hide trace",
+    "newChat": "New conversation"
+  },
+  "chat": {
+    "placeholder": "Describe what's going on… (no names or ID numbers please)",
+    "send": "Send",
+    "inputLabel": "Your message",
+    "counter": "{{count}} / {{max}}",
+    "typing": "Assistant is thinking…",
+    "you": "You",
+    "assistant": "HealTrip assistant",
+    "emptyTitle": "How can I help you decide on your next step?",
+    "emptySubtitle": "Tell me your symptoms or what you're looking for. I'll ask a few questions, check how urgent it is, and find suitable doctors in our directory.",
+    "examplesTitle": "Try an example",
+    "languageLocked": "This conversation continues in {{language}}. Start a new conversation to switch languages.",
+    "messagesRemaining": "{{count}} messages left in this conversation",
+    "quickRepliesLabel": "Quick answers",
+    "providersTitle": "Verified options from the HealTrip directory",
+    "loadingHistory": "Loading conversation…"
+  },
+  "examples": {
+    "chestPainTask": "I have chest pain and I'm not sure whether I should see a cardiologist, go to the ER, or seek a second opinion.",
+    "secondOpinion": "I was diagnosed with a heart valve problem and I'd like a second opinion in Jeddah.",
+    "notFound": "I need a neurologist in Abha for frequent migraines.",
+    "arChestPain": "عندي ألم في الصدر ومو متأكد هل أروح الطوارئ أو أشوف دكتور قلب",
+    "arEmergency": "أبوي عنده ألم شديد في الصدر يمتد للذراع ويتعرق",
+    "arKnee": "عندي ألم في الركبة من شهر وأبغى دكتور عظام في الرياض يتكلم عربي"
+  },
+  "urgency": {
+    "EMERGENCY": "Emergency",
+    "URGENT": "Urgent",
+    "ROUTINE": "Routine",
+    "UNKNOWN": "Not assessed",
+    "EMERGENCY_desc": "Possible emergency — get help now.",
+    "URGENT_desc": "Should be checked by a doctor soon (today or in the next day or two).",
+    "ROUTINE_desc": "No signs of an emergency from what you've shared.",
+    "UNKNOWN_desc": "Urgency could not be assessed."
+  },
+  "nextStep": {
+    "CALL_EMERGENCY": "Call emergency services (997)",
+    "GO_TO_ER": "Go to the emergency department",
+    "SEE_SPECIALIST": "See a specialist",
+    "SECOND_OPINION": "Get a second opinion",
+    "NEED_MORE_INFO": "A few questions first"
+  },
+  "emergency": {
+    "callNow": "Call 997 now",
+    "call": "Call {{number}}",
+    "nearestEr": "Emergency departments",
+    "numbersTitle": "Emergency numbers",
+    "erPhone": "ER phone"
+  },
+  "provider": {
+    "experience_one": "{{count}} year experience",
+    "experience_other": "{{count}} years experience",
+    "fee": "{{fee}} SAR",
+    "feeLabel": "Consultation fee",
+    "nextAvailable": "Next available",
+    "noSlots": "No open slots in the next 14 days",
+    "languages": "Speaks",
+    "secondOpinion": "Second opinion",
+    "telemedicine": "Telemedicine",
+    "rating": "Rating {{rating}}",
+    "accreditation": "Accreditation: {{value}}",
+    "er": "Has ER"
+  },
+  "languages": {
+    "ar": "Arabic",
+    "en": "English"
+  },
+  "errors": {
+    "network": "You seem to be offline or the server can't be reached.",
+    "timeout": "The assistant took too long to respond.",
+    "rate_limited": "You're sending messages too quickly. Please wait a moment.",
+    "rate_limited_wait": "Too many messages. Please wait about {{seconds}} seconds.",
+    "session_limit": "This conversation reached its message limit. Please start a new conversation.",
+    "not_found": "This conversation is no longer available. Please start a new one.",
+    "csrf": "Your session expired. Please try again.",
+    "validation": "That message couldn't be sent. Please check it and try again.",
+    "server": "Something went wrong on our side.",
+    "emergencyHint": "If this is an emergency, call 997 now.",
+    "retry": "Try again",
+    "newChat": "Start a new conversation"
+  },
+  "trace": {
+    "title": "Agent trace",
+    "subtitle": "What the agent did for the last reply (for reviewers).",
+    "empty": "Send a message to see the agent's reasoning trace.",
+    "stage": "Stage",
+    "urgency": "Final urgency",
+    "source": "Decided by",
+    "source_rules": "deterministic rules",
+    "source_llm": "LLM",
+    "source_fallback": "safe fallback",
+    "rules": "Red-flag rules",
+    "noFlags": "no red flags matched",
+    "llm": "LLM",
+    "iterations": "Iterations",
+    "latency": "Latency",
+    "outcome": "Outcome",
+    "reasoning": "Reasoning summary",
+    "state": "Extracted state",
+    "noState": "Nothing extracted yet",
+    "toolCalls": "Tool calls",
+    "noToolCalls": "No tools called this turn",
+    "args": "args",
+    "resultIds": "result ids",
+    "ok": "ok",
+    "failed": "failed",
+    "grounding": "Grounding violations",
+    "noViolations": "none — every recommendation was verified",
+    "rounds": "Clarification rounds used"
+  },
+  "stage": {
+    "INTAKE": "Intake",
+    "CLARIFY": "Clarify",
+    "ASSESS": "Assess",
+    "SEARCH": "Search",
+    "RECOMMEND": "Recommend",
+    "EMERGENCY": "Emergency"
+  },
+  "footer": {
+    "disclaimer": "HealTrip's assistant gives navigation guidance, not medical advice or a diagnosis. In an emergency call 997.",
+    "fictional": "Prototype: all doctors and hospitals shown are fictional."
+  }
+}

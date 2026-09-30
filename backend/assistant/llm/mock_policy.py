@@ -65,11 +65,22 @@ _REPLIES = {
         "en": "There is no matching specialist in your city in our directory. These are the closest verified options in other cities.",
         "ar": "لا يوجد طبيب مطابق في مدينتك ضمن دليلنا. هذه أقرب الخيارات الموثّقة في مدن أخرى.",
     },
+    "city": {
+        "en": "Thanks. Which city are you in, so I can find doctors near you?",
+        "ar": "شكرًا. في أي مدينة أنت حتى أجد لك أطباء قريبين منك؟",
+    },
     "none": {
         "en": "I couldn't find a matching provider in our directory for this request.",
         "ar": "لم أجد مقدم خدمة مطابقًا في دليلنا لهذا الطلب.",
     },
 }  # fmt: skip
+
+
+_CITY_QUESTION = {"en": "Which city are you in?", "ar": "في أي مدينة أنت؟"}
+_CITY_REPLIES = {
+    "en": ["I'm in Riyadh", "I'm in Jeddah", "I'm in Dammam", "I'm in Abha"],
+    "ar": ["أنا في الرياض", "أنا في جدة", "أنا في الدمام", "أنا في أبها"],
+}
 
 
 def _current_turn(messages: list[dict[str, Any]]) -> tuple[dict[str, Any], str, list[dict]]:
@@ -138,6 +149,13 @@ def demo_policy(messages: list[dict[str, Any]]) -> LLMResponse:
         return _submit(
             lang, _REPLIES["questions"][lang], "URGENT", "NEED_MORE_INFO", [], updates,
             "Mock policy: chest pain needs red-flag screening questions first.", questions,
+        )  # fmt: skip
+
+    if not city and context["can_ask_more_questions"]:
+        return _submit(
+            lang, _REPLIES["city"][lang], "URGENT" if specialty == "CARDIOLOGY" else "ROUTINE",
+            "NEED_MORE_INFO", [], updates, "Mock policy: need the city to search the directory.",
+            [{"question": _CITY_QUESTION[lang], "quick_replies": _CITY_REPLIES[lang]}],
         )  # fmt: skip
 
     args: dict[str, Any] = {"specialty": specialty, "limit": 3}
