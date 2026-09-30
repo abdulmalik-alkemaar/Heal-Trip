@@ -27,3 +27,17 @@ Short ADR-style entries. Each records **context → decision → consequences**.
 **Decision.** Use `context: .` with `dockerfile: backend/Dockerfile` (and the same for the frontend) in both compose files and CI. Exclude `*/migrations/*` from ruff, since they are generated code. Add `.gitattributes` so shell scripts stay LF when committed from Windows (the nginx entrypoint would otherwise fail in Linux containers). The dev compose mounts an anonymous volume at `/app/.venv` so the host checkout doesn't hide the container's virtualenv.
 
 **Consequences.** `docker compose up`, the Railway build and the CI image build all use one consistent build context.
+
+## ADR-004 — `AgentRunLog` is a separate table from `ToolCallLog`
+
+**Context.** The brief allowed folding per-turn metrics into `ToolCallLog`.
+
+**Decision.** Keep a separate `AgentRunLog` with one row per assistant turn. `ToolCallLog` gets a nullable FK to it.
+
+**Consequences.** A turn can have zero tool calls (the emergency short-circuit, or a pure clarifying question) or several. Putting turn metrics on tool rows would either duplicate them or lose the zero-tool turns. With the split, "urgency provenance" and "grounding violations per turn" become simple queries, which also makes the admin a useful audit view.
+
+## ADR-005 — Closed enums for city and specialty, shared by DB and tool schemas
+
+**Decision.** `providers/choices.py` defines `City` and `SpecialtyCode` once. The model field choices, the seed data and the Pydantic tool-input schemas all import them.
+
+**Consequences.** The JSON schema the LLM sees lists the only valid values, and Pydantic rejects anything else before the query runs. Adding a city is a code change plus a migration, which is acceptable for a prototype. A production system would load the vocabulary from the DB at startup.

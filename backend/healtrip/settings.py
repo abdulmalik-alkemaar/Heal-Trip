@@ -23,8 +23,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django.contrib.postgres",
     # Third party
     "rest_framework",
+    "drf_spectacular",
     "corsheaders",
     "django_q",
     "allauth",
@@ -33,6 +35,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     # Local
     "core",
+    "providers",
+    "assistant",
 ]
 
 MIDDLEWARE = [

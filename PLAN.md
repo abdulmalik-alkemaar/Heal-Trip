@@ -56,21 +56,21 @@ Consequences:
 ## 3. Phase 2 — Database (Django app `providers`)
 
 Models (all user-facing text bilingual):
-- [ ] `Specialty`: `code` (unique, uppercase e.g. CARDIOLOGY, EMERGENCY_MEDICINE, INTERNAL_MEDICINE, NEUROLOGY, ORTHOPEDICS, GASTROENTEROLOGY, PULMONOLOGY), `name_en`, `name_ar`.
-- [ ] `Hospital`: `name_en`, `name_ar`, `city` (choices: Riyadh, Jeddah, Dammam, Abha), `address_en`, `address_ar`, `has_emergency` (bool), `emergency_phone`, `accreditation` (e.g. JCI/CBAHI or empty), `is_active`.
-- [ ] `Doctor`: `name_en`, `name_ar`, `hospital` (FK), `specialties` (M2M), `languages` (array/JSON: "ar", "en"), `years_experience`, `offers_second_opinion` (bool), `offers_telemedicine` (bool), `consultation_fee_sar` (decimal), `rating` (decimal, optional), `is_active`.
-- [ ] `AvailabilitySlot`: `doctor` (FK), `start_time`, `duration_minutes`, `is_booked`.
-- [ ] Add DB indexes on fields used for filtering (city, specialty, is_active).
-- [ ] Register all models in Django admin with search and filters.
-- [ ] Management command `python manage.py seed_providers`: idempotent, creates ~8 hospitals across the 4 cities (at least 1 with ER per city except deliberately leave one specialty missing in one city to test "not found"), ~25 doctors across the specialties, and availability slots for the next 14 days. Mark clearly in README that all data is fictional.
+- [x] `Specialty`: `code` (unique, uppercase e.g. CARDIOLOGY, EMERGENCY_MEDICINE, INTERNAL_MEDICINE, NEUROLOGY, ORTHOPEDICS, GASTROENTEROLOGY, PULMONOLOGY), `name_en`, `name_ar`.
+- [x] `Hospital`: `name_en`, `name_ar`, `city` (choices: Riyadh, Jeddah, Dammam, Abha), `address_en`, `address_ar`, `has_emergency` (bool), `emergency_phone`, `accreditation` (e.g. JCI/CBAHI or empty), `is_active`.
+- [x] `Doctor`: `name_en`, `name_ar`, `hospital` (FK), `specialties` (M2M), `languages` (array/JSON: "ar", "en"), `years_experience`, `offers_second_opinion` (bool), `offers_telemedicine` (bool), `consultation_fee_sar` (decimal), `rating` (decimal, optional), `is_active`.
+- [x] `AvailabilitySlot`: `doctor` (FK), `start_time`, `duration_minutes`, `is_booked`.
+- [x] Add DB indexes on fields used for filtering (city, specialty, is_active).
+- [x] Register all models in Django admin with search and filters.
+- [x] Management command `python manage.py seed_providers`: idempotent, creates ~8 hospitals across the 4 cities (at least 1 with ER per city except deliberately leave one specialty missing in one city to test "not found"), ~25 doctors across the specialties, and availability slots for the next 14 days. Mark clearly in README that all data is fictional.
 
 Django app `assistant` models:
-- [ ] `ChatSession`: `id` (UUID primary key), `language` ("ar"/"en"), `state` (JSONField — extracted slots), `urgency_level`, `current_stage`, `clarification_rounds` (int), `created_at`, `updated_at`, optional `user` FK (nullable).
-- [ ] `Message`: `session` FK, `role` (user/assistant/tool), `content`, `structured_payload` (JSON, nullable), `created_at`.
-- [ ] `ToolCallLog`: `session` FK, `tool_name`, `arguments` (JSON), `result_ids` (JSON list), `success` (bool), `error` (text), `latency_ms`, `created_at`.
-- [ ] `AgentRunLog` (or fold into ToolCallLog if simpler — record decision): per-turn iterations count, total latency, final urgency, urgency_source ("rules" | "llm"), grounding_violations_count.
+- [x] `ChatSession`: `id` (UUID primary key), `language` ("ar"/"en"), `state` (JSONField — extracted slots), `urgency_level`, `current_stage`, `clarification_rounds` (int), `created_at`, `updated_at`, optional `user` FK (nullable).
+- [x] `Message`: `session` FK, `role` (user/assistant/tool), `content`, `structured_payload` (JSON, nullable), `created_at`.
+- [x] `ToolCallLog`: `session` FK, `tool_name`, `arguments` (JSON), `result_ids` (JSON list), `success` (bool), `error` (text), `latency_ms`, `created_at`.
+- [x] `AgentRunLog` (or fold into ToolCallLog if simpler — record decision): per-turn iterations count, total latency, final urgency, urgency_source ("rules" | "llm"), grounding_violations_count.
 
-- [ ] Generate an ERD diagram as Mermaid in `docs/DATABASE.md` and in the README.
+- [x] Generate an ERD diagram as Mermaid in `docs/DATABASE.md` and in the README.
 
 ## 4. Phase 3 — Safety layer: deterministic Red-Flag Engine
 
