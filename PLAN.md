@@ -47,11 +47,11 @@ Consequences:
 
 ## 2. Phase 1 — Project setup
 
-- [ ] Generate the project from the cookiecutter template: `pip install cookiecutter` (or `uvx cookiecutter`), then `cookiecutter gh:MagedSaeed/cookiecutter-django-react`. Read the template's `cookiecutter.json` first and answer prompts with project name `HealTrip` / slug `healtrip`. Generate into the current folder so the project lives at `./healtrip/` (or move contents to root if cleaner — record the choice in DECISIONS.md).
-- [ ] Read the generated README, backend settings, docker-compose files, and frontend structure before changing anything. Keep the template's conventions (uv, Vite, Tailwind v4, TypeScript, GitHub Actions).
-- [ ] Make sure PostgreSQL is used (via docker-compose) — not SQLite.
-- [ ] Create `.env.example` files with all required variables, including: `ANTHROPIC_API_KEY`, `LLM_PROVIDER` (`anthropic` | `mock`), `LLM_MODEL` (default to a current Claude Sonnet model string; keep it configurable), `LLM_TIMEOUT_SECONDS`, `AGENT_MAX_ITERATIONS=5`, DB settings. Never commit real secrets. Confirm `.env` is in `.gitignore`.
-- [ ] `git init` if needed, first commit.
+- [x] Generate the project from the cookiecutter template: `pip install cookiecutter` (or `uvx cookiecutter`), then `cookiecutter gh:MagedSaeed/cookiecutter-django-react`. Read the template's `cookiecutter.json` first and answer prompts with project name `HealTrip` / slug `healtrip`. Generate into the current folder so the project lives at `./healtrip/` (or move contents to root if cleaner — record the choice in DECISIONS.md).
+- [x] Read the generated README, backend settings, docker-compose files, and frontend structure before changing anything. Keep the template's conventions (uv, Vite, Tailwind v4, TypeScript, GitHub Actions).
+- [x] Make sure PostgreSQL is used (via docker-compose) — not SQLite.
+- [x] Create `.env.example` files with all required variables, including: `ANTHROPIC_API_KEY`, `LLM_PROVIDER` (`anthropic` | `mock`), `LLM_MODEL` (default to a current Claude Sonnet model string; keep it configurable), `LLM_TIMEOUT_SECONDS`, `AGENT_MAX_ITERATIONS=5`, DB settings. Never commit real secrets. Confirm `.env` is in `.gitignore`.
+- [x] `git init` if needed, first commit.
 
 ## 3. Phase 2 — Database (Django app `providers`)
 

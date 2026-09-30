@@ -20,6 +20,12 @@ dependencies = [
     "python-decouple>=3.8",
     "requests>=2.32.5",
     "whitenoise>=6.11.0",
+    "anthropic>=1.0",
+    "pydantic>=2.9",
+    "tenacity>=9.0",
+    "drf-spectacular>=0.28",
+    "python-json-logger>=3.2",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -27,6 +33,8 @@ dev = []
 
 [tool.ruff]
 line-length = 100
+# Django-generated migrations are not hand-written code; keep them out of lint/format.
+extend-exclude = ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]

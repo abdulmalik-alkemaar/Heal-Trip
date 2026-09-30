@@ -87,3 +87,14 @@ frontend/coverage/
 .idea/
 *.sw?
 .DS_Store
+
+# Local secrets (examples and Railway templates with placeholders ARE committed)
+.env.local
+.env.*.local
+backend/.env
+
+# Portable PostgreSQL binaries + data dir used for local dev on Windows
+.local/
+
+# Eval run artifacts (RESULTS.md is committed; raw JSON is not)
+evals/results/*.json

@@ -1,22 +1,59 @@
+# Local full stack: PostgreSQL + Django API + React (nginx) in one command:
+#   cp .env.example .env && docker compose up --build
+# Then open http://localhost:3000  (API docs: http://localhost:8000/api/docs/)
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-healtrip}
+      POSTGRES_USER: ${POSTGRES_USER:-healtrip}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-healtrip}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-healtrip}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
-    build: ./backend
+    # Build context is the repo root because backend/Dockerfile copies `backend/...`
+    # (the same layout Railway uses via RAILWAY_DOCKERFILE_PATH).
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
       - DEBUG=1
-      - DATABASE_URL=sqlite:///db.sqlite3
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-healtrip}:${POSTGRES_PASSWORD:-healtrip}@postgres:5432/${POSTGRES_DB:-healtrip}
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./backend:/app
-    command: uv run python manage.py runserver 0.0.0.0:8000
+      # Keep the container's own virtualenv instead of the host's (which may be Windows).
+      - /app/.venv
+    # migrate + idempotent seed on every start, then the dev server.
+    command: >
+      sh -c "uv run python manage.py migrate --noinput &&
+             uv run python manage.py seed_providers &&
+             uv run python manage.py runserver 0.0.0.0:8000"
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     ports:
       - "3000:80"
     environment:
-      - BACKEND_URL=http://backend:8000
+      - BACKEND_URL=backend
     depends_on:
       - backend
+
+volumes:
+  postgres_data:

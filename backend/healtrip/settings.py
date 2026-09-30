@@ -4,6 +4,7 @@ Django settings for healtrip project - Development configuration.
 
 from pathlib import Path
 
+import dj_database_url
 from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -67,12 +68,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "healtrip.wsgi.application"
 
-# Database - SQLite for development
+# Database - PostgreSQL everywhere (dev, test, CI, prod). We deliberately do NOT
+# fall back to SQLite: provider search relies on Postgres features (ArrayField
+# for doctor languages) and dev/prod parity avoids "works on my machine" bugs.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.parse(
+        config("DATABASE_URL", default="postgresql://healtrip:healtrip@localhost:5432/healtrip"),
+        conn_max_age=60,
+    )
 }
 
 # Password validation
@@ -165,3 +168,24 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # Site URL
 SITE_URL = config("SITE_URL", default="http://localhost:8000")
+
+# ---------------------------------------------------------------------------
+# LLM / Agent configuration
+# ---------------------------------------------------------------------------
+# The API key is read ONLY here, from the environment. It is never serialized
+# into any API response, never logged, and never sent to the frontend.
+ANTHROPIC_API_KEY = config("ANTHROPIC_API_KEY", default="")
+# "anthropic" = real Claude API; "mock" = deterministic scripted client (tests/CI/offline demo).
+LLM_PROVIDER = config("LLM_PROVIDER", default="mock")
+LLM_MODEL = config("LLM_MODEL", default="claude-sonnet-5-5")
+# Effort controls thinking depth / token spend. Patient navigation is a chat-style
+# task, so "medium" is a sensible default; tune via env without code changes.
+LLM_EFFORT = config("LLM_EFFORT", default="medium")
+LLM_MAX_TOKENS = config("LLM_MAX_TOKENS", default=4096, cast=int)
+LLM_TIMEOUT_SECONDS = config("LLM_TIMEOUT_SECONDS", default=30, cast=float)
+LLM_MAX_RETRIES = config("LLM_MAX_RETRIES", default=3, cast=int)
+# Server-side refusal fallback (Claude API only). If the primary model declines a
+# request on safety grounds, the API re-runs it on a fallback model in the same call.
+LLM_REFUSAL_FALLBACK = config("LLM_REFUSAL_FALLBACK", default=True, cast=bool)
+AGENT_MAX_ITERATIONS = config("AGENT_MAX_ITERATIONS", default=5, cast=int)
+AGENT_MAX_CLARIFICATION_ROUNDS = config("AGENT_MAX_CLARIFICATION_ROUNDS", default=3, cast=int)
