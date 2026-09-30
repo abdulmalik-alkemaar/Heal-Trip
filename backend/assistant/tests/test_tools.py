@@ -199,3 +199,13 @@ class TestLoggingAndSchemas:
         for spec in registry.TOOLS.values():
             execute(spec.name, {"specialty": "CARDIOLOGY", "provider_id": 1, "city": "RIYADH"})
         assert before == (Doctor.objects.count(), Hospital.objects.count())
+
+
+@pytest.mark.django_db
+def test_tool_queries_use_the_least_privilege_alias(seeded_db, settings):
+    """Tools query via settings.TOOLS_DB_ALIAS (a SELECT-only role in production)."""
+    from django.utils.connection import ConnectionDoesNotExist
+
+    settings.TOOLS_DB_ALIAS = "no_such_alias"
+    with pytest.raises(ConnectionDoesNotExist):
+        execute("search_providers", {"specialty": "CARDIOLOGY"})

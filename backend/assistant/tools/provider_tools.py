@@ -10,6 +10,7 @@ structured facts, not display names. The model refers to providers by
 from datetime import timedelta
 from typing import Any
 
+from django.conf import settings
 from django.db.models import OuterRef, Prefetch, QuerySet, Subquery
 from django.utils import timezone
 
@@ -31,14 +32,20 @@ EMERGENCY_NUMBERS: list[dict[str, str]] = [
 ]  # fmt: skip
 
 MAX_SLOTS = 5
+
+
+def _db() -> str:
+    """DB alias for tool queries: a SELECT-only role when configured (least privilege)."""
+    return settings.TOOLS_DB_ALIAS
+
+
 MAX_ER_HOSPITALS = 5
 
 
 def _next_free_slot_subquery() -> Subquery:
     return Subquery(
-        AvailabilitySlot.objects.filter(
-            doctor=OuterRef("pk"), is_booked=False, start_time__gt=timezone.now()
-        )
+        AvailabilitySlot.objects.using(_db())
+        .filter(doctor=OuterRef("pk"), is_booked=False, start_time__gt=timezone.now())
         .order_by("start_time")
         .values("start_time")[:1]
     )
@@ -47,9 +54,12 @@ def _next_free_slot_subquery() -> Subquery:
 def _active_doctors() -> QuerySet[Doctor]:
     """Base queryset for everything the agent can see: active doctors at active hospitals."""
     return (
-        Doctor.objects.filter(is_active=True, hospital__is_active=True)
+        Doctor.objects.using(_db())
+        .filter(is_active=True, hospital__is_active=True)
         .select_related("hospital")
-        .prefetch_related(Prefetch("specialties", queryset=Specialty.objects.only("code")))
+        .prefetch_related(
+            Prefetch("specialties", queryset=Specialty.objects.using(_db()).only("code"))
+        )
         .annotate(next_available=_next_free_slot_subquery())
     )
 
@@ -125,17 +135,21 @@ def get_provider_details(args: GetProviderDetailsInput) -> dict[str, Any]:
 
 
 def check_availability(args: CheckAvailabilityInput) -> dict[str, Any]:
-    if not Doctor.objects.filter(pk=args.provider_id, is_active=True).exists():
+    if not Doctor.objects.using(_db()).filter(pk=args.provider_id, is_active=True).exists():
         return {
             "error": {"code": "not_found", "message": f"No active provider {args.provider_id}."}
         }
     now = timezone.now()
-    slots = AvailabilitySlot.objects.filter(
-        doctor_id=args.provider_id,
-        is_booked=False,
-        start_time__gt=now,
-        start_time__lte=now + timedelta(days=args.days_ahead),
-    ).order_by("start_time")[:MAX_SLOTS]
+    slots = (
+        AvailabilitySlot.objects.using(_db())
+        .filter(
+            doctor_id=args.provider_id,
+            is_booked=False,
+            start_time__gt=now,
+            start_time__lte=now + timedelta(days=args.days_ahead),
+        )
+        .order_by("start_time")[:MAX_SLOTS]
+    )
     return {
         "provider_id": args.provider_id,
         "days_ahead": args.days_ahead,
@@ -151,7 +165,7 @@ def check_availability(args: CheckAvailabilityInput) -> dict[str, Any]:
 
 
 def get_emergency_info(args: GetEmergencyInfoInput) -> dict[str, Any]:
-    er = Hospital.objects.filter(is_active=True, has_emergency=True)
+    er = Hospital.objects.using(_db()).filter(is_active=True, has_emergency=True)
     hospitals = list(er.filter(city=args.city)) if args.city else []
     if not hospitals:
         # Unknown city, or no ER there: list ERs everywhere rather than nothing.

@@ -225,4 +225,52 @@ LLM_MAX_RETRIES = config("LLM_MAX_RETRIES", default=3, cast=int)
 # request on safety grounds, the API re-runs it on a fallback model in the same call.
 LLM_REFUSAL_FALLBACK = config("LLM_REFUSAL_FALLBACK", default=True, cast=bool)
 AGENT_MAX_ITERATIONS = config("AGENT_MAX_ITERATIONS", default=5, cast=int)
+
+# ---------------------------------------------------------------------------
+# Least privilege for agent tools (optional)
+# ---------------------------------------------------------------------------
+# If DATABASE_URL_READONLY is set, every tool query runs on a connection whose role
+# can only SELECT the provider directory tables (see docs/sql/readonly_role.sql).
+# Even a bug in a tool could then neither write data nor read chat history.
+DATABASE_URL_READONLY = config("DATABASE_URL_READONLY", default="")
+if DATABASE_URL_READONLY:
+    DATABASES["tools_readonly"] = {
+        **dj_database_url.parse(DATABASE_URL_READONLY, conn_max_age=60),
+        "TEST": {"MIRROR": "default"},
+    }
+TOOLS_DB_ALIAS = "tools_readonly" if DATABASE_URL_READONLY else "default"
+
+# ---------------------------------------------------------------------------
+# Logging: PII-redacted; JSON lines in production (LOG_FORMAT=json)
+# ---------------------------------------------------------------------------
+LOG_FORMAT = config("LOG_FORMAT", default="console")
+LOG_LEVEL = config("LOG_LEVEL", default="INFO")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {"redact_pii": {"()": "healtrip.logging.PiiRedactingFilter"}},
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
+            "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "rename_fields": {"asctime": "ts", "levelname": "level", "name": "logger"},
+        },
+        "console": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"},
+    },
+    "handlers": {
+        "default": {
+            "class": "logging.StreamHandler",
+            "formatter": "json" if LOG_FORMAT == "json" else "console",
+            "filters": ["redact_pii"],
+        }
+    },
+    "root": {"handlers": ["default"], "level": LOG_LEVEL},
+    "loggers": {
+        # The SDK can log request bodies at DEBUG; keep it at WARNING so patient text
+        # and headers never reach the logs.
+        "anthropic": {"level": "WARNING"},
+        "httpx": {"level": "WARNING"},
+        "httpx2": {"level": "WARNING"},
+    },
+}
 AGENT_MAX_CLARIFICATION_ROUNDS = config("AGENT_MAX_CLARIFICATION_ROUNDS", default=3, cast=int)
