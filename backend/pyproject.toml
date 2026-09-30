@@ -1,0 +1,54 @@
+[project]
+name = "healtrip"
+version = "0.1.0"
+description = "HealTrip AI Patient Decision Assistant"
+requires-python = ">=3.13"
+authors = [
+    { name = "Your Name", email = "you@example.com" },
+]
+dependencies = [
+    "dj-database-url>=3.1.0",
+    "django>=6.0.2",
+    "django-allauth[socialaccount]>=65.4.0",
+    "PyJWT[crypto]>=2.8.0",  # Required by allauth's Google provider to decode ID tokens
+    "django-cors-headers>=4.9.0",
+    "django-q2>=1.9.0",
+    "django-redis>=6.0.0",
+    "djangorestframework>=3.16.1",
+    "gunicorn>=25.0.3",
+    "psycopg2-binary>=2.9.11",
+    "python-decouple>=3.8",
+    "requests>=2.32.5",
+    "whitenoise>=6.11.0",
+]
+
+[project.optional-dependencies]
+dev = []
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "healtrip.settings"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-django>=4.11.1",
+    "responses>=0.25.8",
+    "ruff>=0.15.0",
+]

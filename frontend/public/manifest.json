@@ -1,0 +1,36 @@
+{
+  "name": "HealTrip",
+  "short_name": "HealTrip",
+  "description": "HealTrip AI Patient Decision Assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#3b82f6",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
