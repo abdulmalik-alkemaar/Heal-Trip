@@ -8,7 +8,7 @@ FIRST ACTION: Save this entire message as `PLAN.md` in the project root. As you 
 
 ## Blocked
 
-- **Real-LLM eval run + real-model traces.** The Anthropic API key works, but the account had no credit (`400: credit balance is too low`). `evals/RESULTS.md` and the NOTES traces are a clearly labeled **mock** run. To unblock: add credit, then run `cd backend && uv run python manage.py run_evals --provider anthropic` and `uv run python manage.py demo_trace --provider anthropic`, and paste the output into NOTES / the README §12 table.
+- ~~Real-LLM eval run~~ **Resolved:** after credit was added, 16/16 passed on `claude-sonnet-5-5`; real traces are in NOTES.
 - **`docker compose up` not executed locally.** There's no Docker on this machine. The compose files and Dockerfiles were fixed (template build-context bug) and CI builds both images. Locally the stack was verified against real PostgreSQL 16 (portable binaries) + `runserver` + Vite, including a scripted browser run in Edge. To unblock: run `docker compose up --build` on a machine with Docker.
 - **GitHub Actions CI not yet run on GitHub.** Every CI step was executed locally and passes. It runs on the first push.
 - **Demo link.** It depends on your Railway deploy (docs/DEPLOYMENT.md).
