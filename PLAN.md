@@ -243,10 +243,10 @@ Also create:
 ## 15. Final verification (do this last)
 
 - [x] Run all tests, linters, and the frontend build; everything passes.
-- [ ] Walk through the traceability table and confirm every requirement from section 0 and every evaluation point is implemented and verifiable. Report any gap.
+- [x] Walk through the traceability table and confirm every requirement from section 0 and every evaluation point is implemented and verifiable. Report any gap.
 - [x] Manually test (or script) the exact chest-pain example in English and Arabic and paste the resulting trace into `NOTES_FOR_REVIEWER.md`.
-- [ ] Check no secrets are committed (`git log -p | grep -i key` style check).
-- [ ] Give me a final summary: what was built, how to run it, what I need to do manually (API key, GitHub push, Railway deploy, recording a short demo video), and a list of likely interview questions about this code with short answers so I can prepare.
+- [x] Check no secrets are committed (`git log -p | grep -i key` style check).
+- [x] Give me a final summary: what was built, how to run it, what I need to do manually (API key, GitHub push, Railway deploy, recording a short demo video), and a list of likely interview questions about this code with short answers so I can prepare.
 
 ## Coding standards
 - Python: type hints everywhere, `ruff` for lint/format, small functions, docstrings explaining WHY.
