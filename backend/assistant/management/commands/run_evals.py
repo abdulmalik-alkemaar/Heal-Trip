@@ -155,7 +155,7 @@ class Command(BaseCommand):
         rows = []
         for r in results:
             exp = " / ".join(
-                "|".join(v) if isinstance(v, list) else "any" for v in r["expected"].values()
+                " or ".join(v) if isinstance(v, list) else "any" for v in r["expected"].values()
             )
             act = f"{r['actual']['urgency']} ({r['actual']['urgency_source']}) / {r['actual']['next_step']}"
             if r["actual"]["provider_ids"]:
@@ -174,7 +174,15 @@ class Command(BaseCommand):
             f"- Result: **{passed}/{len(results)} scenarios passed**\n"
             "- Scenarios: [`scenarios.yaml`](scenarios.yaml). Reproduce: "
             "`cd backend && uv run python manage.py run_evals --provider anthropic`\n\n"
-            "Expected = allowed urgency / next_step. Actual shows the urgency *source* "
+            + (
+                "> ⚠️ **Mock run.** These results come from `MockLLMClient`'s keyword heuristic, "
+                "not from Claude. They show the deterministic layers (rules, tools, grounding, "
+                "stages) working end to end. Run with `--provider anthropic` for real model "
+                "results.\n\n"
+                if provider == "mock"
+                else ""
+            )
+            + "Expected = allowed urgency / next_step. Actual shows the urgency *source* "
             "(rules = deterministic red-flag engine, llm = model). Grounding violations are "
             "attempts caught and removed by the validator (they never reach the patient).\n\n"
             + self._table(results)

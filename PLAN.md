@@ -8,7 +8,10 @@ FIRST ACTION: Save this entire message as `PLAN.md` in the project root. As you 
 
 ## Blocked
 
-_(none yet)_
+- **Real-LLM eval run + real-model traces.** The Anthropic API key works, but the account had no credit (`400: credit balance is too low`). `evals/RESULTS.md` and the NOTES traces are a clearly labeled **mock** run. To unblock: add credit, then run `cd backend && uv run python manage.py run_evals --provider anthropic` and `uv run python manage.py demo_trace --provider anthropic`, and paste the output into NOTES / the README §12 table.
+- **`docker compose up` not executed locally.** There's no Docker on this machine. The compose files and Dockerfiles were fixed (template build-context bug) and CI builds both images. Locally the stack was verified against real PostgreSQL 16 (portable binaries) + `runserver` + Vite, including a scripted browser run in Edge. To unblock: run `docker compose up --build` on a machine with Docker.
+- **GitHub Actions CI not yet run on GitHub.** Every CI step was executed locally and passes. It runs on the first push.
+- **Demo link.** It depends on your Railway deploy (docs/DEPLOYMENT.md).
 
 ---
 
@@ -189,7 +192,7 @@ Keep it clean and simple. No time on fancy visuals.
 
 - [x] Backend unit tests (pytest + pytest-django): red flags, tools, grounding, schemas, API endpoints, error handler, throttling.
 - [x] Agent tests using `MockLLMClient` (no API key needed) covering: tool call → recommend; invalid tool args → self-correct; max iterations; invalid final JSON; fake provider ID; LLM down + emergency.
-- [ ] `evals/scenarios.yaml`: 15 scenarios in English AND Arabic with expected `urgency` and `next_step`, e.g.:
+- [x] `evals/scenarios.yaml`: 15 scenarios in English AND Arabic with expected `urgency` and `next_step`, e.g.:
   1. chest pain + shortness of breath + arm pain → EMERGENCY / CALL_EMERGENCY
   2. the exact task example (chest pain, unsure) → NEED_MORE_INFO first, with good clarifying questions
   3. mild chest pain when pressing the chest for 2 weeks, no other symptoms → ROUTINE or URGENT / SEE_SPECIALIST (cardiology or internal medicine)
@@ -199,7 +202,7 @@ Keep it clean and simple. No time on fancy visuals.
   7. Arabic-only conversation → Arabic replies, Arabic-speaking doctors preferred
   8. stroke signs → EMERGENCY
   …and more.
-- [ ] `python manage.py run_evals` (or `evals/run.py`) runs scenarios against the real LLM when a key is present and prints a results table (scenario, expected, actual, pass/fail, grounding violations). Save the last results to `evals/RESULTS.md` and include the table in the README.
+- [x] `python manage.py run_evals` (or `evals/run.py`) runs scenarios against the real LLM when a key is present and prints a results table (scenario, expected, actual, pass/fail, grounding violations). Save the last results to `evals/RESULTS.md` and include the table in the README.
 - [x] Frontend: at least a few component tests (Vitest) for RTL switching and rendering provider cards / emergency banner.
 - [ ] GitHub Actions CI (from template) runs lint + backend tests (with mock LLM) + frontend build/tests. Must pass.
 
@@ -229,7 +232,7 @@ Also create:
 - [x] `docs/AGENT_DESIGN.md` (prompt, tools, loop, grounding)
 - [x] `docs/DECISIONS.md` (ADR-style short entries)
 - [x] `docs/SECURITY.md`
-- [ ] `NOTES_FOR_REVIEWER.md`: short, honest notes, assumptions, time spent, and what I'd improve.
+- [x] `NOTES_FOR_REVIEWER.md`: short, honest notes, assumptions, time spent, and what I'd improve.
 
 ## 14. Phase 13 — Deployment
 
@@ -239,9 +242,9 @@ Also create:
 
 ## 15. Final verification (do this last)
 
-- [ ] Run all tests, linters, and the frontend build; everything passes.
+- [x] Run all tests, linters, and the frontend build; everything passes.
 - [ ] Walk through the traceability table and confirm every requirement from section 0 and every evaluation point is implemented and verifiable. Report any gap.
-- [ ] Manually test (or script) the exact chest-pain example in English and Arabic and paste the resulting trace into `NOTES_FOR_REVIEWER.md`.
+- [x] Manually test (or script) the exact chest-pain example in English and Arabic and paste the resulting trace into `NOTES_FOR_REVIEWER.md`.
 - [ ] Check no secrets are committed (`git log -p | grep -i key` style check).
 - [ ] Give me a final summary: what was built, how to run it, what I need to do manually (API key, GitHub push, Railway deploy, recording a short demo video), and a list of likely interview questions about this code with short answers so I can prepare.
 
