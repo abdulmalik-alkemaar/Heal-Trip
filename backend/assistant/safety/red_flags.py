@@ -76,7 +76,11 @@ _UNCERTAINTY = re.compile(
 )
 
 # Clause boundaries: negation does not carry across these.
-_CLAUSE_SPLIT = re.compile(r"[.!?;,\n]| but | however | although | لكن | بس | ولكن ")
+_SENTENCE_SPLIT = re.compile(r"[.!?;\n]| but | however | although | لكن | بس | ولكن ")
+# Within a sentence, commas separate segments. A segment that continues a negated
+# symptom list ("No shortness of breath, sweating or dizziness") inherits the negation;
+# any other segment ("No fever, chest pain") does not.
+_SEGMENT_SPLIT = re.compile(r",")
 
 _NEGATION_CUES = {
     # English
@@ -352,16 +356,25 @@ def detect_concepts(text: str) -> set[str]:
     """Return the set of (non-negated) concepts mentioned in free text."""
     normalized = _UNCERTAINTY.sub(" ~ ", normalize(text))
     found: set[str] = set()
-    for clause in _CLAUSE_SPLIT.split(f" {normalized} "):
-        clause = f" {clause.strip()} "
-        for concept, patterns in _COMPILED.items():
-            if concept in found:
-                continue
-            for pattern in patterns:
-                match = pattern.search(clause)
-                if match and not _is_negated(clause, match.start()):
-                    found.add(concept)
+    for sentence in _SENTENCE_SPLIT.split(f" {normalized} "):
+        previous_was_negated_symptom = False
+        segments = [f" {s.strip()} " for s in _SEGMENT_SPLIT.split(sentence)]
+        for index, segment in enumerate(segments):
+            # Part of an "X, Y(,) or Z" list if this or a later segment carries the "or".
+            in_or_list = any(set(s.split()) & _LIST_JOINERS for s in segments[index:])
+            inherits_negation = previous_was_negated_symptom and in_or_list
+            negated_symptom_here = False
+            for concept, patterns in _COMPILED.items():
+                for pattern in patterns:
+                    match = pattern.search(segment)
+                    if not match:
+                        continue
+                    if inherits_negation or _is_negated(segment, match.start()):
+                        negated_symptom_here = True
+                    else:
+                        found.add(concept)
                     break
+            previous_was_negated_symptom = negated_symptom_here or inherits_negation
     return found
 
 

@@ -126,7 +126,16 @@ class AnthropicClient:
             logger.warning("llm_retries_exhausted", extra={"error": type(cause).__name__})
             raise LLMUnavailableError("llm_unavailable") from cause
         except anthropic.APIStatusError as exc:  # non-retryable 4xx (bad request, auth, ...)
-            logger.error("llm_request_rejected", extra={"status": exc.status_code})
+            # The API's error type/message (e.g. "credit balance is too low") never contains
+            # patient data, and without it a 400 is undiagnosable from logs.
+            error = exc.body.get("error", {}) if isinstance(exc.body, dict) else {}
+            logger.error(
+                "llm_request_rejected %s %s: %s",
+                exc.status_code,
+                error.get("type", ""),
+                str(error.get("message", ""))[:200],
+                extra={"status": exc.status_code, "request_id": getattr(exc, "request_id", "")},
+            )
             raise LLMUnavailableError(f"llm_http_{exc.status_code}") from exc
         except anthropic.AnthropicError as exc:
             logger.error("llm_error", extra={"error": type(exc).__name__})

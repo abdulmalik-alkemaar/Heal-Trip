@@ -117,6 +117,30 @@ def test_negation_suppresses_flag(text):
     assert detect_concepts(text) == set(), text
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        # Regression (found in the demo trace): negation must cover a comma list.
+        "No shortness of breath, sweating or dizziness.",
+        "I don't have shortness of breath, sweating, or nausea",
+        "ما عندي ضيق تنفس، تعرق أو دوخة",
+    ],
+)
+def test_negation_covers_comma_separated_lists(text):
+    assert detect_concepts(text) == set(), text
+
+
+def test_chest_pain_with_negated_companions_stays_urgent():
+    text = "Chest pain for two weeks. No shortness of breath, sweating or dizziness."
+    assert evaluate([text]).level == Urgency.URGENT
+
+
+def test_bare_no_does_not_negate_a_following_list():
+    """'No,' answering a question must not silence symptoms listed afterwards."""
+    assert "CHEST_PAIN" in detect_concepts("No, I have chest pain or pressure")
+    assert "CHEST_PAIN" in detect_concepts("No fever, chest pain")
+
+
 def test_negation_does_not_leak_across_clauses():
     assert "CHEST_PAIN" in detect_concepts("No fever, but I have chest pain")
     assert "CHEST_PAIN" in detect_concepts("I don't sleep well and I have chest pain")
